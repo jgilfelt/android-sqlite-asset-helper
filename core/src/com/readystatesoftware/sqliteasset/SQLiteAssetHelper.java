@@ -262,8 +262,13 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 				InputStream is = mContext.getAssets().open(path);
 				String sql = convertStreamToString(is);
 				if (sql != null) {
-					//Log.d(TAG, sql);
-					db.execSQL(sql);
+					String[] cmds = sql.split(";");
+					for (String cmd : cmds) {
+						//Log.d(TAG, "cmd=" + cmd);
+						if (cmd.trim().length() > 0) {
+							db.execSQL(cmd);
+						}
+					}
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
