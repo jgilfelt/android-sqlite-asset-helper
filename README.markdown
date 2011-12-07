@@ -3,7 +3,7 @@ Android SQLiteAssetHelper
 
 An Android helper class to manage database creation and version management using an application's raw asset files.
 
-This class provides developers with a simple way to ship their Android app with an existing SQLite database (which may be pre-populuted with data) and to manage its initial creation and any upgrades required with subsequent version releases.
+This class provides developers with a simple way to ship their Android app with an existing SQLite database (which may be pre-populated with data) and to manage its initial creation and any upgrades required with subsequent version releases.
 
 It is implemented as an extension to `SQLiteOpenHelper`, providing an efficient way for `ContentProvider` implementations to defer opening and upgrading the database until first use.
 
