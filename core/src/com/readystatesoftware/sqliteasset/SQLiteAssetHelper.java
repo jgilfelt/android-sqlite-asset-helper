@@ -35,6 +35,28 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+/**
+ * A helper class to manage database creation and version management using 
+ * an application's raw asset files.
+ * 
+ * This class provides developers with a simple way to ship their Android app 
+ * with an existing SQLite database (which may be pre-populated with data) and 
+ * to manage its initial creation and any upgrades required with subsequent 
+ * version releases.
+ * 
+ * <p>This class makes it easy for {@link android.content.ContentProvider}
+ * implementations to defer opening and upgrading the database until first use,
+ * to avoid blocking application startup with long-running database upgrades.
+ *
+ * <p>For examples see <a href="https://github.com/jgilfelt/android-sqlite-asset-helper">
+ * https://github.com/jgilfelt/android-sqlite-asset-helper</a>
+ *
+ * <p class="note"><strong>Note:</strong> this class assumes
+ * monotonically increasing version numbers for upgrades.  Also, there
+ * is no concept of a database downgrade; installing a new version of
+ * your app which uses a lower version number than a
+ * previously-installed version will result in undefined behavior.</p>
+ */
 public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
 	private static final String TAG = SQLiteAssetHelper.class.getSimpleName();
@@ -59,10 +81,11 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
      * {@link #getReadableDatabase} is called.
      *
      * @param context to use to open or create the database
-     * @param name of the database file, or null for an in-memory database
+     * @param name of the database file
      * @param factory to use for creating cursor objects, or null for the default
      * @param version number of the database (starting at 1); if the database is older,
-     *     {@link #onUpgrade} will be used to upgrade the database
+     *     SQL file(s) contained within the application assets folder will be used to 
+     *     upgrade the database
      */
 	public SQLiteAssetHelper(Context context, String name, CursorFactory factory, int version) {
 		super(context, name, factory, version);
@@ -83,10 +106,9 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
 	/**
 	 * Create and/or open a database that will be used for reading and writing.
-	 * The first time this is called, the database will be opened and
-	 * {@link #onCreate}, {@link #onUpgrade} and/or {@link #onOpen} will be
-	 * called.
-	 *
+	 * The first time this is called, the database will be extracted and copied
+	 * from the application's assets folder.
+	 * 
 	 * <p>Once opened successfully, the database is cached, so you can
 	 * call this method every time you need to write to the database.
 	 * (Make sure to call {@link #close} when you no longer need the database.)
