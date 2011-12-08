@@ -74,6 +74,8 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	private String mArchivePath;
 	private String mUpgradePathFormat;
 
+	private int mForcedUpgradeVersion = 0;
+	
 	 /**
      * Create a helper object to create, open, and/or manage a database.
      * This method always returns very quickly.  The database is not actually
@@ -148,9 +150,17 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 			//} else {
 			//    db = mContext.openOrCreateDatabase(mName, 0, mFactory);
 			//}
-			db = createOrOpenDatabase();
+			db = createOrOpenDatabase(false);
 
 			int version = db.getVersion();
+			
+			// do force upgrade
+			if (version != 0 && version < mForcedUpgradeVersion) {
+				db = createOrOpenDatabase(true);
+				db.setVersion(mNewVersion);
+				version = db.getVersion();
+			}
+			
 			if (version != mNewVersion) {
 				db.beginTransaction();
 				try {
@@ -300,11 +310,20 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		Log.w(TAG, "Successfully upgraded database " + mName + " from version " + oldVersion + " to " + newVersion);
 
 	}
+	
+	public void setForcedUpgradeVersion(int version) {
+		mForcedUpgradeVersion = version;
+	}
 
-	private SQLiteDatabase createOrOpenDatabase() throws SQLiteAssetException {		
+	private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {		
 		SQLiteDatabase db = returnDatabase();
 		if (db != null) {
-			// database already exists, so return it
+			// database already exists
+			if (force) {
+				Log.w(TAG, "forcing database upgrade!");
+				copyDatabaseFromAssets();
+				db = returnDatabase();
+			}
 			return db;
 		} else {
 			// database does not exist, copy it from assets and return it

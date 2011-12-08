@@ -42,7 +42,7 @@ The [example-v1](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/ma
 Database Upgrades
 -----------------
 
-At a certain point in your application's lifecycle you will need to alter it's database structure to support additional features. You must ensure users who have installed your app prior to this can safely upgrade their local databases without the loss of any local information.
+At a certain point in your application's lifecycle you will need to alter it's database structure to support additional features. You must ensure users who have installed your app prior to this can safely upgrade their local databases without the loss of any locally held data.
 
 To facilitate a database upgrade, increment the version number that you pass to your `SQLiteAssetHelper` constructor:
 
@@ -57,6 +57,14 @@ For example, [assets/databases/northwind_upgrade_1-2.sql](https://github.com/jgi
 If there are no files to form an upgrade path from a previously installed version to the current one, the class will throw a `SQLiteAssetHelperException`.
 
 The [example-v2](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/example-v2) project demonstrates a simple upgrade to the Northwind database which adds a FullName column to the Employee table.
+
+### Generating upgrade scripts
+
+You can use a number of tools to automatically generate the SQL required to modify a database from one schema version to another. One such tool is [SQLite Compare Utility](http://www.codeproject.com/KB/database/SQLiteCompareUtility.aspx) for Windows.
+
+### Forcing upgrades
+
+You can force users onto the latest version of the SQLite database by calling the `setForcedUpgradeVersion(int version)` method in your constructor. The argument passed is the the version number below which the upgrade will be forced. Note that this will forcably overwriting any existing local database and all data within it.
 
 Credits
 -------
