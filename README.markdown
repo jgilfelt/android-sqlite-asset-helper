@@ -18,7 +18,7 @@ Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providin
 
     public class MyDatabase extends SQLiteAssetHelper {
     
-      private static final String DATABASE_NAME = "northwind";
+        private static final String DATABASE_NAME = "northwind";
 	    private static final int DATABASE_VERSION = 1;
     
 	    public MyDatabase(Context context) {
@@ -60,11 +60,11 @@ The [example-v2](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/ma
 
 ### Generating upgrade scripts
 
-You can use a number of tools to automatically generate the SQL required to modify a database from one schema version to another. One such tool is [SQLite Compare Utility](http://www.codeproject.com/KB/database/SQLiteCompareUtility.aspx) for Windows.
+You can use 3rd party tools to automatically generate the SQL required to modify a database from one schema version to another. One such application is [SQLite Compare Utility](http://www.codeproject.com/KB/database/SQLiteCompareUtility.aspx) for Windows.
 
 ### Forcing upgrades
 
-You can force users onto the latest version of the SQLite database by calling the `setForcedUpgradeVersion(int version)` method in your constructor. The argument passed is the the version number below which the upgrade will be forced. Note that this will forcably overwriting any existing local database and all data within it.
+You can force users onto the latest version of the SQLite database (overwriting the local database with the one in the assets) by calling the `setForcedUpgradeVersion(int version)` method in your constructor. The argument passed is the the version number below which the upgrade will be forced. Note that this will forcibly overwriting any existing local database and all data within it.
 
 Credits
 -------
