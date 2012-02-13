@@ -27,11 +27,11 @@ Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providin
     }
 
 
-The name of the database must match a gzip compressed file placed in your project's `assets/databases` directory. This zip file must contain a single SQLite database file. For example:
+The name of the database must match a zip compressed file placed in your project's `assets/databases` directory. This zip file must contain a single SQLite database file. For example:
 
     assets/databases/northwind.zip
 
-The SQLite database file must be the only file within the zip archive. The databse file itself can be named anything you like. Gzip compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
+The SQLite database file must be the only file within the zip archive. The databse file itself can be named anything you like. ZIP compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
 
 The database will be extracted from the assets and copied into place within your application's private data directory and made available for use the first time either `getReadableDatabase()` or `getWritableDatabase()` is called.
 
