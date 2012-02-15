@@ -69,7 +69,9 @@ You can force users onto the latest version of the SQLite database (overwriting 
 Credits
 -------
 
-Author: Jeff Gilfelt
+Author: [Jeff Gilfelt](https://github.com/jgilfelt)
+
+Contributor: [Alexandros Schillings](https://github.com/alt236)
 
 The code in this project is licensed under the Apache Software License 2.0.
 <br />
