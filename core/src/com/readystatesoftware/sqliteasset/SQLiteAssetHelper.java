@@ -75,6 +75,9 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	private String mArchivePath;
 	private String mUpgradePathFormat;
 	
+	private static final String BEGIN_TRANSACTION = "begin transaction";
+	private static final String COMMIT_TRANSACTION = "commit transaction";
+	
 	private int mForcedUpgradeVersion = 0;
 	
 	 /**
@@ -207,20 +210,20 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 			return false;
 		}
 		
-		trimmedCmd =  cmd.trim();
+		trimmedCmd = cmd.trim().toLowerCase();
 		
 		if(trimmedCmd.length() <= 0){
 			return false;
 		}
 		
 		if(!mAllowNestedTransactions){
-			if(trimmedCmd.endsWith("BEGIN TRANSACTION")){
+			if(trimmedCmd.endsWith(BEGIN_TRANSACTION)){
 				return false;
 			}
-			if("BEGIN TRANSACTION".equals(trimmedCmd)){
+			if(BEGIN_TRANSACTION.equals(trimmedCmd)){
 				return false;
 			}
-			if("COMMIT TRANSACTION".equals(trimmedCmd)){
+			if(COMMIT_TRANSACTION.equals(trimmedCmd)){
 				return false;
 			}
 		}

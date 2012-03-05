@@ -1,13 +1,1 @@
-*.DS_Store
-core/local.properties
-core/bin/
-core/gen/
-example-v1/local.properties
-example-v1/bin/
-example-v1/gen/
-example-v2/local.properties
-example-v2/bin/
-example-v2/gen/
-example-v3/local.properties
-example-v3/bin/
-example-v3/gen/
+.directory
