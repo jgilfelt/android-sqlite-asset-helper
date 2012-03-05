@@ -69,11 +69,15 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
 	private SQLiteDatabase mDatabase = null;
 	private boolean mIsInitializing = false;
-
+	private boolean mAllowNestedTransactions = false;
+	
 	private String mDatabasePath;
 	private String mArchivePath;
 	private String mUpgradePathFormat;
-
+	
+	private static final String BEGIN_TRANSACTION = "begin transaction";
+	private static final String COMMIT_TRANSACTION = "commit transaction";
+	
 	private int mForcedUpgradeVersion = 0;
 	
 	 /**
@@ -99,7 +103,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		mName = name;
 		mFactory = factory;
 		mNewVersion = version;
-
+		
 		mArchivePath = ASSET_DB_PATH + "/" + name + ".zip";
 		mDatabasePath = context.getApplicationInfo().dataDir + "/databases";
 		mUpgradePathFormat = ASSET_DB_PATH + "/" + name + "_upgrade_%s-%s.sql";
@@ -199,6 +203,32 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
 	}
 
+	private boolean isValidCmd(String cmd){
+		String trimmedCmd;
+		
+		if(cmd == null){
+			return false;
+		}
+		
+		trimmedCmd = cmd.trim().toLowerCase();
+		
+		if(trimmedCmd.length() <= 0){
+			return false;
+		}
+		
+		if(!mAllowNestedTransactions){
+			if(trimmedCmd.endsWith(BEGIN_TRANSACTION)){
+				return false;
+			}
+			if(BEGIN_TRANSACTION.equals(trimmedCmd)){
+				return false;
+			}
+			if(COMMIT_TRANSACTION.equals(trimmedCmd)){
+				return false;
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Create and/or open a database.  This will be the same object returned by
@@ -297,7 +327,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 					String[] cmds = sql.split(";");
 					for (String cmd : cmds) {
 						//Log.d(TAG, "cmd=" + cmd);
-						if (cmd.trim().length() > 0) {
+						if (isValidCmd(cmd)) {
 							db.execSQL(cmd);
 						}
 					}
@@ -310,6 +340,25 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		Log.w(TAG, "Successfully upgraded database " + mName + " from version " + oldVersion + " to " + newVersion);
 
 	}
+	
+	
+	/**
+	 * Enable or disable nested transactions (disabled by default)
+	 * <p>By default android does not support nested SQLite transactions, and will
+	 * crash if the the following lines are included in a migration script:</p>
+	 *   <ul>
+	 *   <li><i>BEGIN TRANSACTION;</i>
+	 *   <li><i>COMMIT TRANSACTION;</i>
+	 *   </ul>
+	 * <p>If nested transactions are disabled (default behaviour) then these lines will
+	 * be ignored.</p>
+	 *
+	 * @param mAllowNestedTransactions True to enable false otehrwise
+	 */
+	public void setAllowNestedTransactions(boolean mAllowNestedTransactions) {
+		this.mAllowNestedTransactions = mAllowNestedTransactions;
+	}
+
 	
 	public void setForcedUpgradeVersion(int version) {
 		mForcedUpgradeVersion = version;
