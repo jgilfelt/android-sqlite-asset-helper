@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Android SQLiteAssetHelper by jgilfelt</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Android SQLiteAssetHelper</h1>
+<p>An Android helper class to manage database creation and version management using an application's raw asset files</p>
+        <p class="view"><a href="https://github.com/jgilfelt/android-sqlite-asset-helper">View the Project on GitHub <small>jgilfelt/android-sqlite-asset-helper</small></a></p>
+        <ul>
+          <li><a href="https://github.com/jgilfelt/android-sqlite-asset-helper/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jgilfelt/android-sqlite-asset-helper/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jgilfelt/android-sqlite-asset-helper">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <p>An Android helper class to manage database creation and version management using an application's raw asset files.</p>
+
+<p>This class provides developers with a simple way to ship their Android app with an existing SQLite database (which may be pre-populated with data) and to manage its initial creation and any upgrades required with subsequent version releases.</p>
+
+<p>It is implemented as an extension to <code>SQLiteOpenHelper</code>, providing an efficient way for <code>ContentProvider</code> implementations to defer opening and upgrading the database until first use.</p>
+
+<p>Rather than implementing <code>onCreate()</code> and <code>onUpgrade()</code> methods to execute a bunch of SQL statements, developers simply include appropriately named file assets in their project's <code>assets</code> directory. These will include the initial SQLite database file for creation and optionally any SQL upgrade scripts.</p>
+
+<h2>Credits</h2>
+
+<p>Author: <a href="http://jeffgilfelt.com">Jeff Gilfelt</a></p>
+
+<p>The code in this project is licensed under the Apache Software License 2.0.</p>
+
+<p>Copyright (c) 2012 readyState Software Ltd.</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/jgilfelt">jgilfelt</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+  </body>
+</html>
