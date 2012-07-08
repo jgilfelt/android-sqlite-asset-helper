@@ -18,7 +18,7 @@ Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providin
 
     public class MyDatabase extends SQLiteAssetHelper {
     
-      private static final String DATABASE_NAME = "northwind";
+        private static final String DATABASE_NAME = "northwind";
 	    private static final int DATABASE_VERSION = 1;
     
 	    public MyDatabase(Context context) {
@@ -27,11 +27,11 @@ Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providin
     }
 
 
-The name of the database must match a gzip compressed file placed in your project's `assets/databases` directory. This zip file must contain a single SQLite database file. For example:
+The name of the database must match a zip compressed file placed in your project's `assets/databases` directory. This zip file must contain a single SQLite database file. For example:
 
     assets/databases/northwind.zip
 
-The SQLite database file must be the only file within the zip archive. The databse file itself can be named anything you like. Gzip compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
+The SQLite database file must be the only file within the zip archive. The databse file itself can be named anything you like. ZIP compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
 
 The database will be extracted from the assets and copied into place within your application's private data directory. If you prefer to store the database file somewhere else (such as external storage) you can use the alternate constructor to specify a storage path. You must ensure that this path is available and writable whenever your application needs to access the database.
 
@@ -64,16 +64,18 @@ The [example-v2](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/ma
 
 ### Generating upgrade scripts
 
-You can use a number of tools to automatically generate the SQL required to modify a database from one schema version to another. One such tool is [SQLite Compare Utility](http://www.codeproject.com/KB/database/SQLiteCompareUtility.aspx) for Windows.
+You can use 3rd party tools to automatically generate the SQL required to modify a database from one schema version to another. One such application is [SQLite Compare Utility](http://www.codeproject.com/KB/database/SQLiteCompareUtility.aspx) for Windows.
 
 ### Forcing upgrades
 
-You can force users onto the latest version of the SQLite database by calling the `setForcedUpgradeVersion(int version)` method in your constructor. The argument passed is the the version number below which the upgrade will be forced. Note that this will forcably overwriting any existing local database and all data within it.
+You can force users onto the latest version of the SQLite database (overwriting the local database with the one in the assets) by calling the `setForcedUpgradeVersion(int version)` method in your constructor. The argument passed is the the version number below which the upgrade will be forced. Note that this will forcibly overwriting any existing local database and all data within it.
 
 Credits
 -------
 
-Author: Jeff Gilfelt
+Author: [Jeff Gilfelt](https://github.com/jgilfelt)
+
+Contributor: [Alexandros Schillings](https://github.com/alt236)
 
 The code in this project is licensed under the Apache Software License 2.0.
 <br />
