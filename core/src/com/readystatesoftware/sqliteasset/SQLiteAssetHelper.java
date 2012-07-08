@@ -300,7 +300,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	}
 
 	@Override
-	public final void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		
 		Log.w(TAG, "Upgrading database " + mName + " from version " + oldVersion + " to " + newVersion + "...");
 		
