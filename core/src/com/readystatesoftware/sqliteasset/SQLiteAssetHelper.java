@@ -77,7 +77,44 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	private int mForcedUpgradeVersion = 0;
 	
 	 /**
-     * Create a helper object to create, open, and/or manage a database.
+     * Create a helper object to create, open, and/or manage a database in 
+     * a specified location.
+     * This method always returns very quickly.  The database is not actually
+     * created or opened until one of {@link #getWritableDatabase} or
+     * {@link #getReadableDatabase} is called.
+     *
+     * @param context to use to open or create the database
+     * @param name of the database file
+     * @param storageDirectory to store the database file upon creation; caller must
+     *     ensure that the specified absolute path is available and can be written to  
+     * @param factory to use for creating cursor objects, or null for the default
+     * @param version number of the database (starting at 1); if the database is older,
+     *     SQL file(s) contained within the application assets folder will be used to 
+     *     upgrade the database
+     */
+	public SQLiteAssetHelper(Context context, String name, String storageDirectory, CursorFactory factory, int version) {
+		super(context, name, factory, version);
+
+		if (version < 1) throw new IllegalArgumentException("Version must be >= 1, was " + version);
+		if (name == null) throw new IllegalArgumentException("Databse name cannot be null");
+
+		mContext = context;
+		mName = name;
+		mFactory = factory;
+		mNewVersion = version;
+
+		mArchivePath = ASSET_DB_PATH + "/" + name + ".zip";
+		if (storageDirectory != null) {
+			mDatabasePath = storageDirectory;
+		} else {
+			mDatabasePath = context.getApplicationInfo().dataDir + "/databases";
+		}
+		mUpgradePathFormat = ASSET_DB_PATH + "/" + name + "_upgrade_%s-%s.sql";
+	}
+	
+	 /**
+     * Create a helper object to create, open, and/or manage a database in 
+     * the application's default private data directory.
      * This method always returns very quickly.  The database is not actually
      * created or opened until one of {@link #getWritableDatabase} or
      * {@link #getReadableDatabase} is called.
@@ -90,19 +127,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
      *     upgrade the database
      */
 	public SQLiteAssetHelper(Context context, String name, CursorFactory factory, int version) {
-		super(context, name, factory, version);
-
-		if (version < 1) throw new IllegalArgumentException("Version must be >= 1, was " + version);
-		if (name == null) throw new IllegalArgumentException("Databse name cannot be null");
-
-		mContext = context;
-		mName = name;
-		mFactory = factory;
-		mNewVersion = version;
-
-		mArchivePath = ASSET_DB_PATH + "/" + name + ".zip";
-		mDatabasePath = context.getApplicationInfo().dataDir + "/databases";
-		mUpgradePathFormat = ASSET_DB_PATH + "/" + name + "_upgrade_%s-%s.sql";
+		this(context, name, null, factory, version);
 	}
 
 
@@ -361,7 +386,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 			Log.w(TAG, "database copy complete");
 
 		} catch (FileNotFoundException fe) {
-			SQLiteAssetException se = new SQLiteAssetException("Missing " + mArchivePath + " file in assets");
+			SQLiteAssetException se = new SQLiteAssetException("Missing " + mArchivePath + " file in assets or target folder not writable");
 			se.setStackTrace(fe.getStackTrace());
 			throw se;
 		} catch (IOException e) {
