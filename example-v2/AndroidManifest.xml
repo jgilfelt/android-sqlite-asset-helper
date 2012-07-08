@@ -4,7 +4,9 @@
     android:versionCode="2"
     android:versionName="2.0" >
 
-    <uses-sdk android:minSdkVersion="7" />
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="8" />
+    
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:icon="@drawable/ic_launcher"

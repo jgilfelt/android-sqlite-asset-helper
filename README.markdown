@@ -33,7 +33,11 @@ The name of the database must match a gzip compressed file placed in your projec
 
 The SQLite database file must be the only file within the zip archive. The databse file itself can be named anything you like. Gzip compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
 
-The database will be extracted from the assets and copied into place within your application's private data directory and made available for use the first time either `getReadableDatabase()` or `getWritableDatabase()` is called.
+The database will be extracted from the assets and copied into place within your application's private data directory. If you prefer to store the database file somewhere else (such as external storage) you can use the alternate constructor to specify a storage path. You must ensure that this path is available and writable whenever your application needs to access the database.
+
+    super(context, DATABASE_NAME, context.getExternalFilesDir(null).getAbsolutePath(), null, DATABASE_VERSION);
+
+The database is made available for use the first time either `getReadableDatabase()` or `getWritableDatabase()` is called.
 
 The class will throw a `SQLiteAssetHelperException` if you do not provide the appropriately named file.
 
