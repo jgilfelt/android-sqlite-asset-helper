@@ -322,7 +322,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 				InputStream is = mContext.getAssets().open(path);
 				String sql = convertStreamToString(is);
 				if (sql != null) {
-					String[] cmds = sql.split(";");
+					List<String> cmds = splitSqlScript(sql, ';');
 					for (String cmd : cmds) {
 						//Log.d(TAG, "cmd=" + cmd);
 						if (cmd.trim().length() > 0) {
@@ -338,6 +338,30 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		Log.w(TAG, "Successfully upgraded database " + mName + " from version " + oldVersion + " to " + newVersion);
 
 	}
+
+	private static List<String> splitSqlScript(String script, char delim) {
+		List<String> statements = new ArrayList<String>();
+    StringBuilder sb = new StringBuilder();
+    boolean inLiteral = false;
+    char[] content = script.toCharArray();
+    for (int i = 0; i < script.length(); i++) {
+      if (content[i] == '"') {
+        inLiteral = !inLiteral;
+      }
+      if (content[i] == delim && !inLiteral) {
+        if (sb.length() > 0) {
+          statements.add(sb.toString().trim());
+          sb = new StringBuilder();
+        }
+      } else {
+        sb.append(content[i]);
+      }
+    }
+    if (sb.length() > 0) {
+      statements.add(sb.toString().trim());
+    }
+    return statements;
+  }
 	
 	public void setForcedUpgradeVersion(int version) {
 		mForcedUpgradeVersion = version;
