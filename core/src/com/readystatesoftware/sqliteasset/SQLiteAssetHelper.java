@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -341,27 +342,27 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
 	private static List<String> splitSqlScript(String script, char delim) {
 		List<String> statements = new ArrayList<String>();
-    StringBuilder sb = new StringBuilder();
-    boolean inLiteral = false;
-    char[] content = script.toCharArray();
-    for (int i = 0; i < script.length(); i++) {
-      if (content[i] == '"') {
-        inLiteral = !inLiteral;
-      }
-      if (content[i] == delim && !inLiteral) {
-        if (sb.length() > 0) {
-          statements.add(sb.toString().trim());
-          sb = new StringBuilder();
-        }
-      } else {
-        sb.append(content[i]);
-      }
-    }
-    if (sb.length() > 0) {
-      statements.add(sb.toString().trim());
-    }
-    return statements;
-  }
+		StringBuilder sb = new StringBuilder();
+		boolean inLiteral = false;
+		char[] content = script.toCharArray();
+		for (int i = 0; i < script.length(); i++) {
+			if (content[i] == '"') {
+				inLiteral = !inLiteral;
+			}
+			if (content[i] == delim && !inLiteral) {
+				if (sb.length() > 0) {
+					statements.add(sb.toString().trim());
+					sb = new StringBuilder();
+				}
+			} else {
+				sb.append(content[i]);
+			}
+		}
+		if (sb.length() > 0) {
+			statements.add(sb.toString().trim());
+		}
+		return statements;
+	}
 	
 	public void setForcedUpgradeVersion(int version) {
 		mForcedUpgradeVersion = version;
