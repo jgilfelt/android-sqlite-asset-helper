@@ -342,6 +342,15 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	public void setForcedUpgradeVersion(int version) {
 		mForcedUpgradeVersion = version;
 	}
+	
+	/**
+	 * Returns the full database path. Useful when attaching other databases
+	 *
+	 * @return Full Database Path
+	 */
+	public String getDatabasePath(){
+		return mDatabasePath + "/" + mName;
+	}
 
 	private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {		
 		SQLiteDatabase db = returnDatabase();
@@ -363,7 +372,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
 	private SQLiteDatabase returnDatabase(){
 		try {
-			SQLiteDatabase db = SQLiteDatabase.openDatabase(mDatabasePath + "/" + mName, mFactory, SQLiteDatabase.OPEN_READWRITE);
+			SQLiteDatabase db = SQLiteDatabase.openDatabase(getDatabasePath(), mFactory, SQLiteDatabase.OPEN_READWRITE);
 			Log.i(TAG, "successfully opened database " + mName);
 			return db;
 		} catch (SQLiteException e) {
