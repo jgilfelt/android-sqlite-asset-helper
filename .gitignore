@@ -1,13 +1,34 @@
-*.DS_Store
-core/local.properties
-core/bin/
-core/gen/
-example-v1/local.properties
-example-v1/bin/
-example-v1/gen/
-example-v2/local.properties
-example-v2/bin/
-example-v2/gen/
-example-v3/local.properties
-example-v3/bin/
-example-v3/gen/
+# Eclipse
+.project
+.classpath
+.settings
+.checkstyle
+
+# IntelliJ IDEA
+.idea
+*.iml
+*.ipr
+*.iws
+classes
+gen-external-apklibs
+
+# Gradle
+.gradle
+build
+
+# Maven
+target
+release.properties
+pom.xml.*
+
+# Ant
+bin
+gen
+build.xml
+ant.properties
+local.properties
+proguard.cfg
+proguard-project.txt
+
+# Other
+.DS_Store

@@ -1,0 +1,3 @@
+include ':core'
+include ':example-v1'
+include ':example-v2'
