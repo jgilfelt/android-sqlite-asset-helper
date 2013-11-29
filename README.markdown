@@ -31,7 +31,7 @@ The name of the database must match a zip compressed file placed in your project
 
     assets/databases/northwind.zip
 
-The SQLite database file must be the only file within the zip archive. The databse file itself can be named anything you like. ZIP compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
+The SQLite database file must be the only file within the zip archive. The database file itself can be named anything you like. ZIP compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
 
 The database will be extracted from the assets and copied into place within your application's private data directory. If you prefer to store the database file somewhere else (such as external storage) you can use the alternate constructor to specify a storage path. You must ensure that this path is available and writable whenever your application needs to access the database.
 
@@ -41,7 +41,7 @@ The database is made available for use the first time either `getReadableDatabas
 
 The class will throw a `SQLiteAssetHelperException` if you do not provide the appropriately named file.
 
-The [example-v1](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/example-v1) project demonstrates a simple database creation and usage example using the classic Northwind database.
+The [samples:v1](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/samples/v1) project demonstrates a simple database creation and usage example using the classic Northwind database.
 
 Database Upgrades
 -----------------
@@ -56,11 +56,11 @@ Update the initial SQLite database in the project's `assets/databases` directory
 
     assets/databases/<database_name>_upgrade_<from_version>-<to_version>.sql
 
-For example, [assets/databases/northwind_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/master/example-v2/assets/databases/northwind_upgrade_1-2.sql) upgrades the database named "northwind" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
+For example, [assets/databases/northwind_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/master/samples/v2/assets/databases/northwind_upgrade_1-2.sql) upgrades the database named "northwind" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
 
 If there are no files to form an upgrade path from a previously installed version to the current one, the class will throw a `SQLiteAssetHelperException`.
 
-The [example-v2](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/example-v2) project demonstrates a simple upgrade to the Northwind database which adds a FullName column to the Employee table.
+The [samples:v2](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/example-v2) project demonstrates a simple upgrade to the Northwind database which adds a FullName column to the Employee table.
 
 ### Generating upgrade scripts
 
@@ -68,14 +68,19 @@ You can use 3rd party tools to automatically generate the SQL required to modify
 
 ### Forcing upgrades
 
-You can force users onto the latest version of the SQLite database (overwriting the local database with the one in the assets) by calling the `setForcedUpgradeVersion(int version)` method in your constructor. The argument passed is the the version number below which the upgrade will be forced. Note that this will forcibly overwriting any existing local database and all data within it.
+You can force users onto the latest version of the SQLite database (overwriting the local database with the one in the assets) by calling the `setForcedUpgradeVersion(int version)` method in your constructor. The argument passed is the version number below which the upgrade will be forced. Note that this will forcibly overwriting any existing local database and all data within it.
 
 Credits
 -------
 
-Author: [Jeff Gilfelt](https://github.com/jgilfelt)
+####Author:
 
-Contributor: [Alexandros Schillings](https://github.com/alt236)
+  * [Jeff Gilfelt](https://github.com/jgilfelt)
+
+#### Contributors:
+
+  * [Alexandros Schillings](https://github.com/alt236)
+  * [Cyril Mottier](https://github.com/cyrilmottier)
 
 The code in this project is licensed under the Apache Software License 2.0.
 <br />
