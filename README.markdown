@@ -29,7 +29,9 @@ Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providin
 
 The name of the database must match a zip compressed file placed in your project's `assets/databases` directory. This zip file must contain a single SQLite database file. For example:
 
-    assets/databases/northwind.zip
+    assets/databases/northwind.db.zip
+
+Note that there are some restrictions on the file naming. In the example above, the archive `northwind.db.zip` should expand into a single file: `northwind.db`. There should be no subdirectories and the extension on the file matters. All databases should end with `.db`. 
 
 The SQLite database file must be the only file within the zip archive. The databse file itself can be named anything you like. ZIP compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
 
