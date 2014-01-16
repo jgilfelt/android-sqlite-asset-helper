@@ -25,6 +25,8 @@ public class MainActivity extends ListActivity {
 				new int[] {android.R.id.text1});
 
 		getListView().setAdapter(adapter);
+
+        setTitle("Test - " + db.getUpgradeVersion());
 	}
 
 	@Override

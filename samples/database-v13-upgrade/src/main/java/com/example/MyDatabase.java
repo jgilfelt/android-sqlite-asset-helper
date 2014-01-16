@@ -9,7 +9,7 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 public class MyDatabase extends SQLiteAssetHelper {
 
-	private static final String DATABASE_NAME = "northwind";
+	private static final String DATABASE_NAME = "northwind.db";
 	private static final int DATABASE_VERSION = 13;
 	
 	public MyDatabase(Context context) {
@@ -45,5 +45,27 @@ public class MyDatabase extends SQLiteAssetHelper {
 		return c;
 
 	}
+
+    public int getUpgradeVersion() {
+
+        SQLiteDatabase db = getReadableDatabase();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+
+        String [] sqlSelect = {"MAX (version)"};
+        String sqlTables = "upgrades";
+
+        qb.setTables(sqlTables);
+        Cursor c = qb.query(db, sqlSelect, null, null,
+                null, null, null);
+
+        int v = 0;
+        c.moveToFirst();
+        if (!c.isAfterLast()) {
+            v = c.getInt(0);
+        }
+        c.close();
+        return v;
+    }
+
 
 }

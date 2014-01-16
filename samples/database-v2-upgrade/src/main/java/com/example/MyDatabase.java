@@ -9,7 +9,7 @@ import com.readystatesoftware.sqliteasset.SQLiteAssetHelper;
 
 public class MyDatabase extends SQLiteAssetHelper {
 
-	private static final String DATABASE_NAME = "northwind";
+	private static final String DATABASE_NAME = "northwind.db";
 	private static final int DATABASE_VERSION = 2;
 	
 	public MyDatabase(Context context) {
