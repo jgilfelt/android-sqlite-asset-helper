@@ -354,7 +354,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
      */
     @Deprecated
     public void setForcedUpgradeVersion(int version) {
-        mForcedUpgradeVersion = version;
+        setForcedUpgrade(version);
     }
 
     /**
