@@ -378,10 +378,15 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
     private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {
 
-        // TODO we could test for the existence of the db file first and not attempt open
+        // test for the existence of the db file first and don't attempt open
         // to prevent the error trace in log on API 14+
+        SQLiteDatabase db = null;
+        File file = new File (mDatabasePath + "/" + mName);
+        if (file.exists()) {
+            db = returnDatabase();
+        }
+        //SQLiteDatabase db = returnDatabase();
 
-        SQLiteDatabase db = returnDatabase();
         if (db != null) {
             // database already exists
             if (force) {
