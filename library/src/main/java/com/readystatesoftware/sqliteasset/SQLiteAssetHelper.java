@@ -24,7 +24,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,8 +68,10 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	private boolean mIsInitializing = false;
 
 	private String mDatabasePath;
-	private String mArchivePath;
-	private String mUpgradePathFormat;
+
+    private String mAssetPath;
+
+    private String mUpgradePathFormat;
 
 	private int mForcedUpgradeVersion = 0;
 	
@@ -101,7 +102,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		mFactory = factory;
 		mNewVersion = version;
 
-		mArchivePath = ASSET_DB_PATH + "/" + name + ".zip";
+		mAssetPath = ASSET_DB_PATH + "/" + name;
 		if (storageDirectory != null) {
 			mDatabasePath = storageDirectory;
 		} else {
@@ -382,25 +383,48 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	private void copyDatabaseFromAssets() throws SQLiteAssetException {
 		Log.w(TAG, "copying database from assets...");
 
+        String path = mAssetPath;
+        String dest = mDatabasePath + "/" + mName;
+        InputStream is;
+        boolean isZip = false;
+
+        try {
+            // try uncompressed
+            is = mContext.getAssets().open(path);
+        } catch (IOException e) {
+            // try zip
+            try {
+                is = mContext.getAssets().open(path + ".zip");
+                isZip = true;
+            } catch (IOException e2) {
+                // try gzip
+                try {
+                    is = mContext.getAssets().open(path + ".gz");
+                } catch (IOException e3) {
+                    SQLiteAssetException se = new SQLiteAssetException("Missing " + mAssetPath + " file (or .zip, .gz archive) in assets, or target folder not writable");
+                    se.setStackTrace(e3.getStackTrace());
+                    throw se;
+                }
+            }
+        }
+
 		try {
-			InputStream zipFileStream = mContext.getAssets().open(mArchivePath);
 			File f = new File(mDatabasePath + "/");
 			if (!f.exists()) { f.mkdir(); }
-
-			ZipInputStream zis = Utils.getFileFromZip(zipFileStream);
-			if (zis == null) {
-				throw new SQLiteAssetException("Archive is missing a SQLite database file"); 
-			}
-			Utils.writeExtractedFileToDisk(zis, new FileOutputStream(mDatabasePath + "/" + mName));
+            if (isZip) {
+			    ZipInputStream zis = Utils.getFileFromZip(is);
+			    if (zis == null) {
+				    throw new SQLiteAssetException("Archive is missing a SQLite database file");
+			    }
+			    Utils.writeExtractedFileToDisk(zis, new FileOutputStream(dest));
+            } else {
+                Utils.writeExtractedFileToDisk(is, new FileOutputStream(dest));
+            }
 
 			Log.w(TAG, "database copy complete");
 
-		} catch (FileNotFoundException fe) {
-			SQLiteAssetException se = new SQLiteAssetException("Missing " + mArchivePath + " file in assets or target folder not writable");
-			se.setStackTrace(fe.getStackTrace());
-			throw se;
 		} catch (IOException e) {
-			SQLiteAssetException se = new SQLiteAssetException("Unable to extract " + mArchivePath + " to data directory");
+			SQLiteAssetException se = new SQLiteAssetException("Unable to write " + dest + " to data directory");
 			se.setStackTrace(e.getStackTrace());
 			throw se;
 		}

@@ -2,7 +2,6 @@ package com.readystatesoftware.sqliteasset;
 
 import android.util.Log;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,20 +39,20 @@ class Utils {
         return statements;
     }
 
-    public static void writeExtractedFileToDisk(ZipInputStream zin, OutputStream outs) throws IOException {
+    public static void writeExtractedFileToDisk(InputStream in, OutputStream outs) throws IOException {
         byte[] buffer = new byte[1024];
         int length;
-        while ((length = zin.read(buffer))>0){
+        while ((length = in.read(buffer))>0){
             outs.write(buffer, 0, length);
         }
         outs.flush();
         outs.close();
-        zin.close();
+        in.close();
     }
 
-    public static ZipInputStream getFileFromZip(InputStream zipFileStream) throws FileNotFoundException, IOException {
+    public static ZipInputStream getFileFromZip(InputStream zipFileStream) throws IOException {
         ZipInputStream zis = new ZipInputStream(zipFileStream);
-        ZipEntry ze = null;
+        ZipEntry ze;
         while ((ze = zis.getNextEntry()) != null) {
             Log.w(TAG, "extracting file: '" + ze.getName() + "'...");
             return zis;
