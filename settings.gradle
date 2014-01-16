@@ -1,3 +1,1 @@
-include ':library'
-include ':samples:v1'
-include ':samples:v2'
+include ':library', 'samples:database-v1', 'samples:database-v2-upgrade'
