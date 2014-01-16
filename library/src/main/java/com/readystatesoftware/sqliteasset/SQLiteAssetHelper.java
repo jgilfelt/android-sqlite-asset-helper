@@ -297,7 +297,12 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	@Override
+    @Override
+    public final void onConfigure(SQLiteDatabase db) {
+        // not supported!
+    }
+
+    @Override
 	public final void onCreate(SQLiteDatabase db) {
 		// do nothing - createOrOpenDatabase() is called in 
 		// getWritableDatabase() to handle database creation.
@@ -340,7 +345,12 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
 	}
 
-	private static List<String> splitSqlScript(String script, char delim) {
+    @Override
+    public final void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        // not supported!
+    }
+
+    private static List<String> splitSqlScript(String script, char delim) {
 		List<String> statements = new ArrayList<String>();
 		StringBuilder sb = new StringBuilder();
 		boolean inLiteral = false;
@@ -368,7 +378,11 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		mForcedUpgradeVersion = version;
 	}
 
-	private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {		
+	private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {
+
+        // TODO we could test for the existence of the db file first and not attempt open
+        // to prevent the error trace in log on API 14+
+
 		SQLiteDatabase db = returnDatabase();
 		if (db != null) {
 			// database already exists
