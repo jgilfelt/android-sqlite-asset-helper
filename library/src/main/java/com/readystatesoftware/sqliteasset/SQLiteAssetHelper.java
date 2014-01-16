@@ -16,28 +16,22 @@
 
 package com.readystatesoftware.sqliteasset;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.zip.ZipInputStream;
 
 /**
  * A helper class to manage database creation and version management using 
@@ -100,7 +94,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		super(context, name, factory, version);
 
 		if (version < 1) throw new IllegalArgumentException("Version must be >= 1, was " + version);
-		if (name == null) throw new IllegalArgumentException("Databse name cannot be null");
+		if (name == null) throw new IllegalArgumentException("Database name cannot be null");
 
 		mContext = context;
 		mName = name;
@@ -133,7 +127,6 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 	public SQLiteAssetHelper(Context context, String name, CursorFactory factory, int version) {
 		this(context, name, null, factory, version);
 	}
-
 
 	/**
 	 * Create and/or open a database that will be used for reading and writing.
@@ -227,7 +220,6 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		}
 
 	}
-
 
 	/**
 	 * Create and/or open a database.  This will be the same object returned by
@@ -326,9 +318,9 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 			try {
 				Log.w(TAG, "processing upgrade: " + path);
 				InputStream is = mContext.getAssets().open(path);
-				String sql = convertStreamToString(is);
+				String sql = Utils.convertStreamToString(is);
 				if (sql != null) {
-					List<String> cmds = splitSqlScript(sql, ';');
+					List<String> cmds = Utils.splitSqlScript(sql, ';');
 					for (String cmd : cmds) {
 						//Log.d(TAG, "cmd=" + cmd);
 						if (cmd.trim().length() > 0) {
@@ -349,30 +341,6 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
     public final void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // not supported!
     }
-
-    private static List<String> splitSqlScript(String script, char delim) {
-		List<String> statements = new ArrayList<String>();
-		StringBuilder sb = new StringBuilder();
-		boolean inLiteral = false;
-		char[] content = script.toCharArray();
-		for (int i = 0; i < script.length(); i++) {
-			if (content[i] == '"') {
-				inLiteral = !inLiteral;
-			}
-			if (content[i] == delim && !inLiteral) {
-				if (sb.length() > 0) {
-					statements.add(sb.toString().trim());
-					sb = new StringBuilder();
-				}
-			} else {
-				sb.append(content[i]);
-			}
-		}
-		if (sb.length() > 0) {
-			statements.add(sb.toString().trim());
-		}
-		return statements;
-	}
 	
 	public void setForcedUpgradeVersion(int version) {
 		mForcedUpgradeVersion = version;
@@ -419,11 +387,11 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 			File f = new File(mDatabasePath + "/");
 			if (!f.exists()) { f.mkdir(); }
 
-			ZipInputStream zis = getFileFromZip(zipFileStream);
+			ZipInputStream zis = Utils.getFileFromZip(zipFileStream);
 			if (zis == null) {
 				throw new SQLiteAssetException("Archive is missing a SQLite database file"); 
 			}
-			writeExtractedFileToDisk(zis, new FileOutputStream(mDatabasePath + "/" + mName));
+			Utils.writeExtractedFileToDisk(zis, new FileOutputStream(mDatabasePath + "/" + mName));
 
 			Log.w(TAG, "database copy complete");
 
@@ -474,99 +442,18 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 		}
 		
 	}
-	
-	private void writeExtractedFileToDisk(ZipInputStream zin, OutputStream outs) throws IOException {
-		byte[] buffer = new byte[1024];
-		int length;
-		while ((length = zin.read(buffer))>0){
-			outs.write(buffer, 0, length);
-		}
-		outs.flush();
-		outs.close();
-		zin.close();
-	}
 
-	private ZipInputStream getFileFromZip(InputStream zipFileStream) throws FileNotFoundException, IOException {
-		ZipInputStream zis = new ZipInputStream(zipFileStream);
-		ZipEntry ze = null;
-		while ((ze = zis.getNextEntry()) != null) {
-			Log.w(TAG, "extracting file: '" + ze.getName() + "'...");
-			return zis;
-		}
-		return null;
-	}
-	
-	private String convertStreamToString(InputStream is) { 
-	    return new Scanner(is).useDelimiter("\\A").next();
-	}
+    /**
+     * An exception that indicates there was an error with SQLite asset retrieval or parsing.
+     */
+    @SuppressWarnings("serial")
+    public static class SQLiteAssetException extends SQLiteException {
 
-	/**
-	 * Compare paths by their upgrade version numbers, instead of using
-	 * alphanumeric comparison on plain file names. This prevents the upgrade
-	 * scripts from being applied out of order when they first move to double-,
-	 * triple-, etc. digits.
-	 * <p>
-	 * For example, this fixes an upgrade that would apply 2 different upgrade
-	 * files from version 9 to 11 (<code>..._updated_9_10</code> and
-	 * <code>..._updated_10_11</code>) from using the <em>incorrect</em>
-	 * alphanumeric order of <code>10_11</code> before <code>9_10</code>.
-	 * </p>
-	 */
-	private class VersionComparator implements Comparator<String> {
-		private Pattern pattern = Pattern
-				.compile(".*_upgrade_([0-9]+)-([0-9]+).*");
+        public SQLiteAssetException() {}
 
-		/**
-		 * Compares the two specified upgrade script strings to determine their
-		 * relative ordering considering their two version numbers. Assumes all
-		 * database names used are the same, as this function only compares the
-		 * two version numbers.
-		 * 
-		 * @param file0
-		 *            an upgrade script file name
-		 * @param file1
-		 *            a second upgrade script file name to compare with file0
-		 * @return an integer < 0 if file0 should be applied before file1, 0 if
-		 *         they are equal (though that shouldn't happen), and > 0 if
-		 *         file0 should be applied after file1.
-		 * 
-		 * @exception SQLiteAssetException
-		 *                thrown if the strings are not in the correct upgrade
-		 *                script format of:
-		 *                <code>databasename_fromVersionInteger_toVersionInteger</code>
-		 */
-		@Override
-		public int compare(String file0, String file1) {
-			Matcher m0 = pattern.matcher(file0);
-			Matcher m1 = pattern.matcher(file1);
-
-			if (!m0.matches()) {
-				Log.w(TAG, "could not parse upgrade script file: " + file0);
-				throw new SQLiteAssetException("Invalid upgrade script file");
-			}
-
-			if (!m1.matches()) {
-				Log.w(TAG, "could not parse upgrade script file: " + file1);
-				throw new SQLiteAssetException("Invalid upgrade script file");
-			}
-
-			int v0_from = Integer.valueOf(m0.group(1));
-			int v1_from = Integer.valueOf(m1.group(1));
-			int v0_to = Integer.valueOf(m0.group(2));
-			int v1_to = Integer.valueOf(m1.group(2));
-
-			if (v0_from == v1_from) {
-				// 'from' versions match for both; check 'to' version next
-
-				if (v0_to == v1_to) {
-					return 0;
-				}
-
-				return v0_to < v1_to ? -1 : 1;
-			}
-
-			return v0_from < v1_from ? -1 : 1;
-		}
-	}
+        public SQLiteAssetException(String error) {
+            super(error);
+        }
+    }
 
 }
