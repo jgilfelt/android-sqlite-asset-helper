@@ -1,0 +1,23 @@
+apply plugin: 'android'
+
+dependencies {
+    compile project(':library')
+}
+
+android {
+    buildToolsVersion '19.0.0'
+    compileSdkVersion 19
+
+    defaultConfig {
+        minSdkVersion 8
+        packageName 'com.sqliteassethelper.example'
+        targetSdkVersion 8
+        versionCode 1
+        versionName '1.0'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
