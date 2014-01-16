@@ -343,8 +343,37 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         // not supported!
     }
 
+    /**
+     * Bypass the upgrade process (for each increment up to a given version) and simply
+     * overwrite the existing database with the supplied asset file.
+     *
+     * @param version bypass upgrade up to this version number - should never be greater than the
+     *                latest database version.
+     *
+     * @deprecated use {@link #setForcedUpgrade} instead.
+     */
+    @Deprecated
     public void setForcedUpgradeVersion(int version) {
         mForcedUpgradeVersion = version;
+    }
+
+    /**
+     * Bypass the upgrade process (for each increment up to a given version) and simply
+     * overwrite the existing database with the supplied asset file.
+     *
+     * @param version bypass upgrade up to this version number - should never be greater than the
+     *                latest database version.
+     */
+    public void setForcedUpgrade(int version) {
+        mForcedUpgradeVersion = version;
+    }
+
+    /**
+     * Bypass the upgrade process for every version increment and simply overwrite the existing
+     * database with the supplied asset file.
+     */
+    public void setForcedUpgrade() {
+        setForcedUpgrade(mNewVersion);
     }
 
     private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {
