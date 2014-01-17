@@ -26,18 +26,15 @@ dependencies {
 
 If you are using the old build system, download and place the latest library [JAR][1] inside your project's `libs` folder.
 
-
 Usage
 -----
-
-Copy [android-sqlite-asset-helper.jar](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/master/lib/android-sqlite-asset-helper.jar?raw=true) into your Android project's `libs` directory and add it to the build path.
 
 Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providing the constructor with a database name and version number:
 
 ```java
 public class MyDatabase extends SQLiteAssetHelper {
 
-    private static final String DATABASE_NAME = "northwind";
+    private static final String DATABASE_NAME = "northwind.db";
     private static final int DATABASE_VERSION = 1;
 
     public MyDatabase(Context context) {
@@ -75,7 +72,7 @@ Update the initial SQLite database in the project's `assets/databases` directory
 
     assets/databases/<database_name>_upgrade_<from_version>-<to_version>.sql
 
-For example, [assets/databases/northwind.db_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/v2/samples/database-v2-upgrade/assets/databases/northwind.db_upgrade_1-2.sql) upgrades the database named "northwind" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
+For example, [northwind.db_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/v2/samples/database-v2-upgrade/src/main/assets/databases/northwind.db_upgrade_1-2.sql) upgrades the database named "northwind" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
 
 If there are no files to form an upgrade path from a previously installed version to the current one, the class will throw a `SQLiteAssetHelperException`.
 
