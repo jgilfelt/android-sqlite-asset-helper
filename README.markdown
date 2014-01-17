@@ -24,10 +24,12 @@ dependencies {
 
 #### Ant/Eclipse
 
-If you are using the old build system, download and place the latest library [JAR][1] inside your project's `libs` folder.
+If you are using the old build system, download the latest library [JAR][1] and put it in your project's `libs` folder.
 
 Usage
 -----
+
+SQLiteAssetHelper is intended as a drop in alternative for the framework's [SQLiteOpenHelper](https://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html). Please familiarize yourself with the behaviour and lifecycle of that class.
 
 Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providing the constructor with a database name and version number:
 
@@ -43,11 +45,19 @@ public class MyDatabase extends SQLiteAssetHelper {
 }
 ```
 
-The name of the database must match a zip compressed file placed in your project's `assets/databases` directory. This zip file must contain a single SQLite database file. For example:
+SQLiteAssetHelper relies upon asset file and folder naming conventions. At minimum, you must provide the following in your `assets` directory, which will either be in your project root directory or under `src/main` in the gradle project structure:
 
-    assets/databases/northwind.zip
+* A `databases` subdirectory inside `assets`
+* A SQLite database inside the `databases` subdirectory whose file name matches the database name you provide in code (including the file extension, if any)
 
-The SQLite database file must be the only file within the zip archive. The database file itself can be named anything you like. ZIP compression is used to minimize APK file size while ensuring that aapt (part of the Android build process) does not corrupt large database files during its own compression process.
+For the example above, ther project would contain the following:
+
+`src/main/assets/databases/northwind.db`
+
+Earlier versions of this library required the database asset to be compressed within a ZIP archive. This is no longer required, but is still supported. Applications still targeting Gingerbread or lower should continue to provide a compressed archive to ensure large database files are not corrupted during the packaging process. The more Linux friendly GZIP format is also supported. The naming conventions using the above example are as follows:
+
+* ZIP: `src/main/assets/databases/northwind.db.zip` (a single SQLite database file must be the only file within the archive)
+* GZIP: `src/main/assets/databases/northwind.db.gz`
 
 The database will be extracted from the assets and copied into place within your application's private data directory. If you prefer to store the database file somewhere else (such as external storage) you can use the alternate constructor to specify a storage path. You must ensure that this path is available and writable whenever your application needs to access the database.
 
