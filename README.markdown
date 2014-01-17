@@ -138,4 +138,4 @@ License
     See the License for the specific language governing permissions and
     limitations under the License.
 
- [1]: http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.readystatesoftware.sqliteasset&a=sqliteassethelper&v=LATEST&c=jar
+ [1]: http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.readystatesoftware.sqliteasset&a=sqliteassethelper&v=LATEST&&c=jar
