@@ -61,7 +61,9 @@ Earlier versions of this library required the database asset to be compressed wi
 
 The database will be extracted from the assets and copied into place within your application's private data directory. If you prefer to store the database file somewhere else (such as external storage) you can use the alternate constructor to specify a storage path. You must ensure that this path is available and writable whenever your application needs to access the database.
 
-    super(context, DATABASE_NAME, context.getExternalFilesDir(null).getAbsolutePath(), null, DATABASE_VERSION);
+```java
+super(context, DATABASE_NAME, context.getExternalFilesDir(null).getAbsolutePath(), null, DATABASE_VERSION);
+```
 
 The database is made available for use the first time either `getReadableDatabase()` or `getWritableDatabase()` is called.
 
