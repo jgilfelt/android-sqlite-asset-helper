@@ -9,6 +9,24 @@ It is implemented as an extension to `SQLiteOpenHelper`, providing an efficient 
 
 Rather than implementing `onCreate()` and `onUpgrade()` methods to execute a bunch of SQL statements, developers simply include appropriately named file assets in their project's `assets` directory. These will include the initial SQLite database file for creation and optionally any SQL upgrade scripts.
 
+Setup
+-----
+
+#### Gradle
+
+If you are using the Gradle build system, simply add the following dependency in your `build.gradle` file:
+
+```groovy
+dependencies {
+    compile 'com.readystatesoftware.sqliteasset:sqliteassethelper:+'
+}
+```
+
+#### Ant/Eclipse
+
+If you are using the old build system, download and place the latest library [JAR][1] inside your project's `libs` folder.
+
+
 Usage
 -----
 
@@ -16,16 +34,17 @@ Copy [android-sqlite-asset-helper.jar](https://github.com/jgilfelt/android-sqlit
 
 Extend `SQLiteAssetHelper` as you would normally do `SQLiteOpenHelper`, providing the constructor with a database name and version number:
 
-    public class MyDatabase extends SQLiteAssetHelper {
-    
-        private static final String DATABASE_NAME = "northwind";
-	    private static final int DATABASE_VERSION = 1;
-    
-	    public MyDatabase(Context context) {
-		    super(context, DATABASE_NAME, null, DATABASE_VERSION);	
-	    }
-    }
+```java
+public class MyDatabase extends SQLiteAssetHelper {
 
+    private static final String DATABASE_NAME = "northwind";
+    private static final int DATABASE_VERSION = 1;
+
+    public MyDatabase(Context context) {
+	    super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+}
+```
 
 The name of the database must match a zip compressed file placed in your project's `assets/databases` directory. This zip file must contain a single SQLite database file. For example:
 
@@ -41,7 +60,7 @@ The database is made available for use the first time either `getReadableDatabas
 
 The class will throw a `SQLiteAssetHelperException` if you do not provide the appropriately named file.
 
-The [samples:v1](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/samples/v1) project demonstrates a simple database creation and usage example using the classic Northwind database.
+The [samples:database-v1](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/v2/samples/database-v1) project demonstrates a simple database creation and usage example using the classic Northwind database.
 
 Database Upgrades
 -----------------
@@ -56,11 +75,11 @@ Update the initial SQLite database in the project's `assets/databases` directory
 
     assets/databases/<database_name>_upgrade_<from_version>-<to_version>.sql
 
-For example, [assets/databases/northwind_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/master/samples/v2/assets/databases/northwind_upgrade_1-2.sql) upgrades the database named "northwind" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
+For example, [assets/databases/northwind.db_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/v2/samples/database-v2-upgrade/assets/databases/northwind.db_upgrade_1-2.sql) upgrades the database named "northwind" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
 
 If there are no files to form an upgrade path from a previously installed version to the current one, the class will throw a `SQLiteAssetHelperException`.
 
-The [samples:v2](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/example-v2) project demonstrates a simple upgrade to the Northwind database which adds a FullName column to the Employee table.
+The [samples:database-v2-upgrade](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/v2/samples/database-v2-upgrade) project demonstrates a simple upgrade to the Northwind database which adds a FullName column to the Employee table.
 
 ### Generating upgrade scripts
 
@@ -81,7 +100,25 @@ Credits
 
   * [Alexandros Schillings](https://github.com/alt236)
   * [Cyril Mottier](https://github.com/cyrilmottier)
+  * [Jon Adams](https://github.com/jon-adams)
+  * [Kevin](https://github.com/kevinchai)
 
-The code in this project is licensed under the Apache Software License 2.0.
-<br />
-Copyright (c) 2011 readyState Software Ltd.
+License
+-------
+
+    Copyright (C) 2011 readyState Software Ltd
+    Copyright (C) 2007 The Android Open Source Project
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+ [1]: http://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.readystatesoftware.sqliteasset&a=sqliteassethelper&v=LATEST&c=jar
