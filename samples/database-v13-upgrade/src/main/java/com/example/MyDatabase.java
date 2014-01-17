@@ -21,12 +21,8 @@ public class MyDatabase extends SQLiteAssetHelper {
 		// to write to it
 		//super(context, DATABASE_NAME, context.getExternalFilesDir(null).getAbsolutePath(), null, DATABASE_VERSION);
 
-        // call this method to force a database overwrite every time the version number increments:
-        //setForcedUpgrade();
-
-		// call this method to force a database overwrite if the version number
-		// is below a certain threshold:
-		//setForcedUpgrade(2);
+        // we have supplied no upgrade path from version 1 to 2
+		setForcedUpgrade(2);
 	}
 
 	public Cursor getEmployees() {
