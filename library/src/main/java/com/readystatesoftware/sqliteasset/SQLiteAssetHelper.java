@@ -467,8 +467,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
     private InputStream getUpgradeSQLStream(int oldVersion, int newVersion) {
         String path = String.format(mUpgradePathFormat, oldVersion, newVersion);
         try {
-            InputStream is = mContext.getAssets().open(path);
-            return is;
+            return mContext.getAssets().open(path);
         } catch (IOException e) {
             Log.w(TAG, "missing database upgrade script: " + path);
             return null;
