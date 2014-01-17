@@ -71,7 +71,7 @@ The class will throw a `SQLiteAssetHelperException` if you do not provide the ap
 
 The SQLiteOpenHelper methods `onConfigure`, `onCreate` and `onDowngrade` are not supported by this implementation and have been declared `final`.
 
-The [samples:database-v1](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/v2/samples/database-v1) project demonstrates a simple database creation and usage example using the classic Northwind database.
+The [samples:database-v1](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/samples/database-v1) project demonstrates a simple database creation and usage example using the classic Northwind database.
 
 Database Upgrades
 -----------------
@@ -88,11 +88,11 @@ Update the initial SQLite database in the project's `assets/databases` directory
 
     assets/databases/<database_name>_upgrade_<from_version>-<to_version>.sql
 
-For example, [northwind.db_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/v2/samples/database-v2-upgrade/src/main/assets/databases/northwind.db_upgrade_1-2.sql) upgrades the database named "northwind.db" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
+For example, [northwind.db_upgrade_1-2.sql](https://github.com/jgilfelt/android-sqlite-asset-helper/blob/master/samples/database-v2-upgrade/src/main/assets/databases/northwind.db_upgrade_1-2.sql) upgrades the database named "northwind.db" from version 1 to 2. You can include multiple upgrade files to upgrade between any two given versions.
 
 If there are no files to form an upgrade path from a previously installed version to the current one, the class will throw a `SQLiteAssetHelperException`.
 
-The [samples:database-v2-upgrade](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/v2/samples/database-v2-upgrade) project demonstrates a simple upgrade to the Northwind database which adds a FullName column to the Employee table.
+The [samples:database-v2-upgrade](https://github.com/jgilfelt/android-sqlite-asset-helper/tree/master/samples/database-v2-upgrade) project demonstrates a simple upgrade to the Northwind database which adds a FullName column to the Employee table.
 
 ### Generating upgrade scripts
 
