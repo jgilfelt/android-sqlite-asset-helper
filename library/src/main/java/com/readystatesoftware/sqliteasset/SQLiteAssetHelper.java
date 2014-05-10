@@ -450,11 +450,18 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
                 if (zis == null) {
                     throw new SQLiteAssetException("Archive is missing a SQLite database file");
                 }
-                Utils.writeExtractedFileToDisk(zis, new FileOutputStream(dest));
+                if (path.endsWith(".sql") || path.endsWith(".SQL")) {
+                	createDatabaseFromSqlInputStream(zis, dest);
+                } else {
+                	Utils.writeExtractedFileToDisk(zis, new FileOutputStream(dest));
+                }
             } else {
-                Utils.writeExtractedFileToDisk(is, new FileOutputStream(dest));
+            	if (path.endsWith(".sql") || path.endsWith(".SQL")) {
+            		createDatabaseFromSqlInputStream(is, dest);
+            	} else {
+            		Utils.writeExtractedFileToDisk(is, new FileOutputStream(dest));
+            	}
             }
-
             Log.w(TAG, "database copy complete");
 
         } catch (IOException e) {
@@ -463,6 +470,43 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             throw se;
         }
     }
+
+    /**
+     * Is used to create the database from a ddl-script ie. if the name ends with '.sql'
+     * ignores lines starting with '--', if present removes any trailing ';'
+     * @param is stream to read the sql from
+     * @param destPath the destination file to create the database in
+     * @throws IOException if reading the input stream caused an error
+     * @throws SQLiteException if the database could not be created
+     */
+    protected void createDatabaseFromSqlInputStream(InputStream is, String destPath) throws IOException, SQLiteException 
+    {
+    	SQLiteDatabase db = null;
+    	try {
+    		db = SQLiteDatabase.openOrCreateDatabase(destPath, mFactory);
+    		db.beginTransaction();
+    		BufferedReader in = new BufferedReader(new InputStreamReader(is));
+    		String cmd = in.readLine();
+    		while (cmd != null) {
+    			cmd = cmd.trim();
+    			if (cmd.startsWith("--") || cmd.length() == 0) {
+    				continue;
+    			}
+    			if (cmd.charAt(cmd.length()-1) == ';') {
+    				cmd = cmd.substring(0, cmd.length()-1);
+    			}
+				db.execSQL(cmd);
+    			cmd = in.readLine();
+    		}
+    		db.setTransactionSuccessful();
+    	} finally {
+    		if (db != null) {
+    			db.endTransaction();
+    			db.close();
+    		}
+    	}
+    }
+    
 
     private InputStream getUpgradeSQLStream(int oldVersion, int newVersion) {
         String path = String.format(mUpgradePathFormat, oldVersion, newVersion);
