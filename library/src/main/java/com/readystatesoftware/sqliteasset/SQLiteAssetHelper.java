@@ -59,7 +59,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
     private static final String TAG = SQLiteAssetHelper.class.getSimpleName();
     private static final String ASSET_DB_PATH = "databases";
 
-    private final Context mContext;
+    protected final Context mContext;
     private final String mName;
     private final CursorFactory mFactory;
     private final int mNewVersion;
