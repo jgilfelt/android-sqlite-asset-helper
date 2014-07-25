@@ -376,29 +376,34 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         setForcedUpgrade(mNewVersion);
     }
 
-    private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {
-
+    private SQLiteDatabase openDatabase() throws SQLiteException {
         // test for the existence of the db file first and don't attempt open
         // to prevent the error trace in log on API 14+
-        SQLiteDatabase db = null;
         File file = new File (getAbsoluteDBPath());
-        if (file.exists()) {
-            db = returnDatabase();
+        if (!file.exists()) {
+            throw new SQLiteException("Database file does not exist.");
+        } else {
+            return returnDatabase();
         }
+    }
 
-        if (db != null) {
-            // database already exists
+    private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {
+        try {
+            SQLiteDatabase db = openDatabase();
             if (force) {
                 Log.w(TAG, "forcing database upgrade!");
                 copyDatabaseFromAssets();
-                db = returnDatabase();
+                db = openDatabase(); // TODO (atexit): this needs to move to where we're calling this from, since nesting try-statments would be super ugly, albeit effective..
             }
             return db;
-        } else {
-            // database does not exist, copy it from assets and return it
+        } catch (SQLiteException e) {
+            // Unable to open database, probably due to non-existence, let's try to copy it from our assets.
             copyDatabaseFromAssets();
-            db = returnDatabase();
-            return db;
+            /* We intentionally don't handle SQLiteExceptions from this here, since we want further
+             * problems to propagate to the end-user.
+             */
+            return openDatabase();
+
         }
     }
 
@@ -406,15 +411,10 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         return mDatabasePath + "/" + mName;
     }
 
-    private SQLiteDatabase returnDatabase() {
-        try {
-            SQLiteDatabase db = SQLiteDatabase.openDatabase(getAbsoluteDBPath(), mFactory, SQLiteDatabase.OPEN_READWRITE);
-            Log.i(TAG, "successfully opened database " + mName);
-            return db;
-        } catch (SQLiteException e) {
-            Log.w(TAG, "could not open database " + mName + " - " + e.getMessage());
-            return null;
-        }
+    private SQLiteDatabase returnDatabase() throws SQLiteException {
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(getAbsoluteDBPath(), mFactory, SQLiteDatabase.OPEN_READWRITE);
+        Log.i(TAG, "successfully opened database " + mName);
+        return db;
     }
 
     private void copyDatabaseFromAssets() throws SQLiteAssetException {
