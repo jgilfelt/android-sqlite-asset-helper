@@ -168,32 +168,34 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         //if (mDatabase != null) mDatabase.lock();
         try {
             mIsInitializing = true;
-            //if (mName == null) {
-            //    db = SQLiteDatabase.create(null);
-            //} else {
-            //    db = mContext.openOrCreateDatabase(mName, 0, mFactory);
-            //}
-            db = createOrOpenDatabase(false);
+
+            try {
+                db = openDatabase();
+            } catch (SQLiteException e) {
+                // Couldn't open the DB, let's try to create it.
+                copyDatabaseFromAssets();
+                db = openDatabase(); // Here if we fail, we propagate the exception to our user.
+            }
 
             int version = db.getVersion();
 
             // do force upgrade
             if (version != 0 && version < mForcedUpgradeVersion) {
-                db = createOrOpenDatabase(true);
-                db.setVersion(mNewVersion);
-                version = db.getVersion();
-            }
-
-            if (version != mNewVersion) {
+                db = forceUpgrade(db);
+            } else {
+                /* Everything in here is mutually exclusive with the forceUpgrade scenario, since it
+                * always sets the version number to mNewVersion. */
                 db.beginTransaction();
                 try {
                     if (version == 0) {
+                        /* Don't actually need to check mNewVersion here at all, since it's checked for >= 1
+                         * in the constructor.
+                         */
                         onCreate(db);
-                    } else {
-                        if (version > mNewVersion) {
-                            Log.w(TAG, "Can't downgrade read-only database from version " +
-                                    version + " to " + mNewVersion + ": " + db.getPath());
-                        }
+                    } else if (version > mNewVersion) {
+                        // We don't handle this, let the default implementation throw an exception.
+                        onDowngrade(db, version, mNewVersion);
+                    } else if (version < mNewVersion) {
                         onUpgrade(db, version, mNewVersion);
                     }
                     db.setVersion(mNewVersion);
@@ -220,6 +222,14 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             }
         }
 
+    }
+
+    private SQLiteDatabase forceUpgrade(SQLiteDatabase db) {
+        Log.w(TAG, "forcing database upgrade!");
+        copyDatabaseFromAssets();
+        db = openDatabase();
+        db.setVersion(mNewVersion);
+        return db;
     }
 
     /**
@@ -253,6 +263,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         try {
             return getWritableDatabase();
         } catch (SQLiteException e) {
+            // TODO (atexit): mName should not be able to be null here, checked in constructor, and it is the only place where it's written.
             if (mName == null) throw e;  // Can't open a temp database read-only!
             Log.e(TAG, "Couldn't open " + mName + " for writing (will try read-only):", e);
         }
@@ -340,7 +351,8 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
     @Override
     public final void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // not supported!
+        throw new SQLiteException("Can't downgrade database from version " +
+                oldVersion + " to " + newVersion);
     }
 
     /**
@@ -384,26 +396,6 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             throw new SQLiteException("Database file does not exist.");
         } else {
             return returnDatabase();
-        }
-    }
-
-    private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {
-        try {
-            SQLiteDatabase db = openDatabase();
-            if (force) {
-                Log.w(TAG, "forcing database upgrade!");
-                copyDatabaseFromAssets();
-                db = openDatabase(); // TODO (atexit): this needs to move to where we're calling this from, since nesting try-statments would be super ugly, albeit effective..
-            }
-            return db;
-        } catch (SQLiteException e) {
-            // Unable to open database, probably due to non-existence, let's try to copy it from our assets.
-            copyDatabaseFromAssets();
-            /* We intentionally don't handle SQLiteExceptions from this here, since we want further
-             * problems to propagate to the end-user.
-             */
-            return openDatabase();
-
         }
     }
 
