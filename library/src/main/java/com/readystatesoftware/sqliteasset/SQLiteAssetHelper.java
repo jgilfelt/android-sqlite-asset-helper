@@ -181,7 +181,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
             // do force upgrade
             if (version != 0 && version < mForcedUpgradeVersion) {
-                db = forceUpgrade(db);
+                db = forceUpgrade();
             } else {
                 /* Everything in here is mutually exclusive with the forceUpgrade scenario, since it
                 * always sets the version number to mNewVersion. */
@@ -224,7 +224,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
     }
 
-    private SQLiteDatabase forceUpgrade(SQLiteDatabase db) {
+    private SQLiteDatabase forceUpgrade() {
         Log.w(TAG, "forcing database upgrade!");
         copyDatabaseFromAssets();
         SQLiteDatabase db = openDatabase(SQLiteDatabase.OPEN_READWRITE);
