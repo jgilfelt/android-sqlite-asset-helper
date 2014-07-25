@@ -170,11 +170,11 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             mIsInitializing = true;
 
             try {
-                db = openDatabase();
+                db = openDatabase(SQLiteDatabase.OPEN_READWRITE);
             } catch (SQLiteException e) {
                 // Couldn't open the DB, let's try to create it.
                 copyDatabaseFromAssets();
-                db = openDatabase(); // Here if we fail, we propagate the exception to our user.
+                db = openDatabase(SQLiteDatabase.OPEN_READWRITE); // Here if we fail, we propagate the exception to our user.
             }
 
             int version = db.getVersion();
@@ -227,7 +227,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
     private SQLiteDatabase forceUpgrade(SQLiteDatabase db) {
         Log.w(TAG, "forcing database upgrade!");
         copyDatabaseFromAssets();
-        db = openDatabase();
+        SQLiteDatabase db = openDatabase(SQLiteDatabase.OPEN_READWRITE);
         db.setVersion(mNewVersion);
         return db;
     }
@@ -271,11 +271,11 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = null;
         try {
             mIsInitializing = true;
-            String path = mContext.getDatabasePath(mName).getPath();
-            db = SQLiteDatabase.openDatabase(path, mFactory, SQLiteDatabase.OPEN_READONLY);
+            // This used to use mContext.getDatabasePath, probably causing strange failures when storagePath was specified.
+            db = openDatabase(SQLiteDatabase.OPEN_READONLY);
             if (db.getVersion() != mNewVersion) {
                 throw new SQLiteException("Can't upgrade read-only database from version " +
-                        db.getVersion() + " to " + mNewVersion + ": " + path);
+                        db.getVersion() + " to " + mNewVersion + ": " + getAbsoluteDBPath());
             }
 
             onOpen(db);
@@ -388,25 +388,22 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         setForcedUpgrade(mNewVersion);
     }
 
-    private SQLiteDatabase openDatabase() throws SQLiteException {
+    private SQLiteDatabase openDatabase(int openModeFlags) throws SQLiteException {
         // test for the existence of the db file first and don't attempt open
         // to prevent the error trace in log on API 14+
-        File file = new File (getAbsoluteDBPath());
+        String absolutePath = getAbsoluteDBPath();
+        File file = new File (absolutePath);
         if (!file.exists()) {
             throw new SQLiteException("Database file does not exist.");
-        } else {
-            return returnDatabase();
         }
+
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, mFactory, openModeFlags);
+        Log.i(TAG, "successfully opened database " + mName);
+        return db;
     }
 
     private String getAbsoluteDBPath() {
         return mDatabasePath + "/" + mName;
-    }
-
-    private SQLiteDatabase returnDatabase() throws SQLiteException {
-        SQLiteDatabase db = SQLiteDatabase.openDatabase(getAbsoluteDBPath(), mFactory, SQLiteDatabase.OPEN_READWRITE);
-        Log.i(TAG, "successfully opened database " + mName);
-        return db;
     }
 
     private void copyDatabaseFromAssets() throws SQLiteAssetException {
