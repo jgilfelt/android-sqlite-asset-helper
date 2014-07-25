@@ -381,11 +381,10 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         // test for the existence of the db file first and don't attempt open
         // to prevent the error trace in log on API 14+
         SQLiteDatabase db = null;
-        File file = new File (mDatabasePath + "/" + mName);
+        File file = new File (getAbsoluteDBPath());
         if (file.exists()) {
             db = returnDatabase();
         }
-        //SQLiteDatabase db = returnDatabase();
 
         if (db != null) {
             // database already exists
@@ -403,9 +402,13 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         }
     }
 
-    private SQLiteDatabase returnDatabase(){
+    private String getAbsoluteDBPath() {
+        return mDatabasePath + "/" + mName;
+    }
+
+    private SQLiteDatabase returnDatabase() {
         try {
-            SQLiteDatabase db = SQLiteDatabase.openDatabase(mDatabasePath + "/" + mName, mFactory, SQLiteDatabase.OPEN_READWRITE);
+            SQLiteDatabase db = SQLiteDatabase.openDatabase(getAbsoluteDBPath(), mFactory, SQLiteDatabase.OPEN_READWRITE);
             Log.i(TAG, "successfully opened database " + mName);
             return db;
         } catch (SQLiteException e) {
@@ -418,7 +421,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         Log.w(TAG, "copying database from assets...");
 
         String path = mAssetPath;
-        String dest = mDatabasePath + "/" + mName;
+        String dest = getAbsoluteDBPath();
         InputStream is;
         boolean isZip = false;
 
