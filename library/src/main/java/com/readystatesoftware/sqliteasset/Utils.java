@@ -42,7 +42,12 @@ class Utils {
             } else {
                 sb.append(content[i]);
             }
-            lastCharacter = content[i];
+            if (lastCharacter == '\\' && content[i] == '\\') {
+                // It was an escaped backslash, don't accumulate.
+                lastCharacter = -1;
+            } else {
+                lastCharacter = content[i];
+            }
         }
         if (sb.length() > 0) {
             statements.add(sb.toString().trim());
