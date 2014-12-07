@@ -168,32 +168,34 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         //if (mDatabase != null) mDatabase.lock();
         try {
             mIsInitializing = true;
-            //if (mName == null) {
-            //    db = SQLiteDatabase.create(null);
-            //} else {
-            //    db = mContext.openOrCreateDatabase(mName, 0, mFactory);
-            //}
-            db = createOrOpenDatabase(false);
+
+            try {
+                db = openDatabase(SQLiteDatabase.OPEN_READWRITE);
+            } catch (SQLiteException e) {
+                // Couldn't open the DB, let's try to create it.
+                copyDatabaseFromAssets();
+                db = openDatabase(SQLiteDatabase.OPEN_READWRITE); // Here if we fail, we propagate the exception to our user.
+            }
 
             int version = db.getVersion();
 
             // do force upgrade
             if (version != 0 && version < mForcedUpgradeVersion) {
-                db = createOrOpenDatabase(true);
-                db.setVersion(mNewVersion);
-                version = db.getVersion();
-            }
-
-            if (version != mNewVersion) {
+                db = forceUpgrade();
+            } else {
+                /* Everything in here is mutually exclusive with the forceUpgrade scenario, since it
+                * always sets the version number to mNewVersion. */
                 db.beginTransaction();
                 try {
                     if (version == 0) {
+                        /* Don't actually need to check mNewVersion here at all, since it's checked for >= 1
+                         * in the constructor.
+                         */
                         onCreate(db);
-                    } else {
-                        if (version > mNewVersion) {
-                            Log.w(TAG, "Can't downgrade read-only database from version " +
-                                    version + " to " + mNewVersion + ": " + db.getPath());
-                        }
+                    } else if (version > mNewVersion) {
+                        // We don't handle this, let the default implementation throw an exception.
+                        onDowngrade(db, version, mNewVersion);
+                    } else if (version < mNewVersion) {
                         onUpgrade(db, version, mNewVersion);
                     }
                     db.setVersion(mNewVersion);
@@ -220,6 +222,14 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             }
         }
 
+    }
+
+    private SQLiteDatabase forceUpgrade() {
+        Log.w(TAG, "forcing database upgrade!");
+        copyDatabaseFromAssets();
+        SQLiteDatabase db = openDatabase(SQLiteDatabase.OPEN_READWRITE);
+        db.setVersion(mNewVersion);
+        return db;
     }
 
     /**
@@ -253,6 +263,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         try {
             return getWritableDatabase();
         } catch (SQLiteException e) {
+            // TODO (atexit): mName should not be able to be null here, checked in constructor, and it is the only place where it's written.
             if (mName == null) throw e;  // Can't open a temp database read-only!
             Log.e(TAG, "Couldn't open " + mName + " for writing (will try read-only):", e);
         }
@@ -260,11 +271,11 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = null;
         try {
             mIsInitializing = true;
-            String path = mContext.getDatabasePath(mName).getPath();
-            db = SQLiteDatabase.openDatabase(path, mFactory, SQLiteDatabase.OPEN_READONLY);
+            // This used to use mContext.getDatabasePath, probably causing strange failures when storagePath was specified.
+            db = openDatabase(SQLiteDatabase.OPEN_READONLY);
             if (db.getVersion() != mNewVersion) {
                 throw new SQLiteException("Can't upgrade read-only database from version " +
-                        db.getVersion() + " to " + mNewVersion + ": " + path);
+                        db.getVersion() + " to " + mNewVersion + ": " + getAbsoluteDBPath());
             }
 
             onOpen(db);
@@ -340,7 +351,8 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
     @Override
     public final void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // not supported!
+        throw new SQLiteException("Can't downgrade database from version " +
+                oldVersion + " to " + newVersion);
     }
 
     /**
@@ -376,49 +388,29 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         setForcedUpgrade(mNewVersion);
     }
 
-    private SQLiteDatabase createOrOpenDatabase(boolean force) throws SQLiteAssetException {
-
+    private SQLiteDatabase openDatabase(int openModeFlags) throws SQLiteException {
         // test for the existence of the db file first and don't attempt open
         // to prevent the error trace in log on API 14+
-        SQLiteDatabase db = null;
-        File file = new File (mDatabasePath + "/" + mName);
-        if (file.exists()) {
-            db = returnDatabase();
+        String absolutePath = getAbsoluteDBPath();
+        File file = new File (absolutePath);
+        if (!file.exists()) {
+            throw new SQLiteException("Database file does not exist.");
         }
-        //SQLiteDatabase db = returnDatabase();
 
-        if (db != null) {
-            // database already exists
-            if (force) {
-                Log.w(TAG, "forcing database upgrade!");
-                copyDatabaseFromAssets();
-                db = returnDatabase();
-            }
-            return db;
-        } else {
-            // database does not exist, copy it from assets and return it
-            copyDatabaseFromAssets();
-            db = returnDatabase();
-            return db;
-        }
+        SQLiteDatabase db = SQLiteDatabase.openDatabase(absolutePath, mFactory, openModeFlags);
+        Log.i(TAG, "successfully opened database " + mName);
+        return db;
     }
 
-    private SQLiteDatabase returnDatabase(){
-        try {
-            SQLiteDatabase db = SQLiteDatabase.openDatabase(mDatabasePath + "/" + mName, mFactory, SQLiteDatabase.OPEN_READWRITE);
-            Log.i(TAG, "successfully opened database " + mName);
-            return db;
-        } catch (SQLiteException e) {
-            Log.w(TAG, "could not open database " + mName + " - " + e.getMessage());
-            return null;
-        }
+    private String getAbsoluteDBPath() {
+        return mDatabasePath + "/" + mName;
     }
 
     private void copyDatabaseFromAssets() throws SQLiteAssetException {
         Log.w(TAG, "copying database from assets...");
 
         String path = mAssetPath;
-        String dest = mDatabasePath + "/" + mName;
+        String dest = getAbsoluteDBPath();
         InputStream is;
         boolean isZip = false;
 
