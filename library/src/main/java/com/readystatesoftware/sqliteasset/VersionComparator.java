@@ -2,11 +2,11 @@ package com.readystatesoftware.sqliteasset;
 
 import android.util.Log;
 
+import com.readystatesoftware.sqliteasset.SQLiteAssetHelper.SQLiteAssetException;
+
 import java.util.Comparator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.readystatesoftware.sqliteasset.SQLiteAssetHelper.SQLiteAssetException;
 
 /**
  * Compare paths by their upgrade version numbers, instead of using
@@ -33,18 +33,14 @@ class VersionComparator implements Comparator<String> {
      * database names used are the same, as this function only compares the
      * two version numbers.
      *
-     * @param file0
-     *            an upgrade script file name
-     * @param file1
-     *            a second upgrade script file name to compare with file0
+     * @param file0 an upgrade script file name
+     * @param file1 a second upgrade script file name to compare with file0
      * @return an integer < 0 if file0 should be applied before file1, 0 if
-     *         they are equal (though that shouldn't happen), and > 0 if
-     *         file0 should be applied after file1.
-     *
-     * @exception SQLiteAssetException
-     *                thrown if the strings are not in the correct upgrade
-     *                script format of:
-     *                <code>databasename_fromVersionInteger_toVersionInteger</code>
+     * they are equal (though that shouldn't happen), and > 0 if
+     * file0 should be applied after file1.
+     * @throws SQLiteAssetException thrown if the strings are not in the correct upgrade
+     *                              script format of:
+     *                              <code>databasename_fromVersionInteger_toVersionInteger</code>
      */
     @Override
     public int compare(String file0, String file1) {

@@ -39,10 +39,11 @@ class Utils {
         return statements;
     }
 
-    public static void writeExtractedFileToDisk(InputStream in, OutputStream outs) throws IOException {
+    public static void writeExtractedFileToDisk(InputStream in, OutputStream outs) throws
+            IOException {
         byte[] buffer = new byte[1024];
         int length;
-        while ((length = in.read(buffer))>0){
+        while ((length = in.read(buffer)) > 0) {
             outs.write(buffer, 0, length);
         }
         outs.flush();
