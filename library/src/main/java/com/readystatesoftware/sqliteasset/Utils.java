@@ -19,12 +19,16 @@ class Utils {
         List<String> statements = new ArrayList<String>();
         StringBuilder sb = new StringBuilder();
         boolean inLiteral = false;
+		boolean inLiteral2 = false;
         char[] content = script.toCharArray();
         for (int i = 0; i < script.length(); i++) {
             if (content[i] == '"') {
                 inLiteral = !inLiteral;
             }
-            if (content[i] == delim && !inLiteral) {
+			if (content[i] == '\'') {
+                inLiteral2 = !inLiteral2;
+            }
+            if (content[i] == delim && !inLiteral && !inLiteral2) {
                 if (sb.length() > 0) {
                     statements.add(sb.toString().trim());
                     sb = new StringBuilder();
