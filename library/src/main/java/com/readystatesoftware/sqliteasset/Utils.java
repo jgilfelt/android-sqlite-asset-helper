@@ -61,7 +61,12 @@ class Utils {
     }
 
     public static String convertStreamToString(InputStream is) {
-        return new Scanner(is).useDelimiter("\\A").next();
+    	Scanner scanner = new Scanner(is);
+    	try {
+    		return scanner.useDelimiter("\\A").next();
+    	} finally {
+    		scanner.close();
+    	}
     }
 
 }
