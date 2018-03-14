@@ -179,9 +179,13 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
             // do force upgrade
             if (version != 0 && version < mForcedUpgradeVersion) {
+                //Close the old database
+                db.close();
                 db = createOrOpenDatabase(true);
-                db.setVersion(mNewVersion);
+                Log.w(TAG, "Forced Upgrade because " + version + " < " + mForcedUpgradeVersion);
                 version = db.getVersion();
+                if(version != mNewVersion)
+                    Log.w(TAG, "Forced Upgrade got " + version + ", now an upgrade to " + mNewVersion + " is required");
             }
 
             if (version != mNewVersion) {
