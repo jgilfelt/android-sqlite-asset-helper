@@ -66,6 +66,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
     private SQLiteDatabase mDatabase = null;
     private boolean mIsInitializing = false;
+    private boolean databaseNewlyCreated = false;
 
     private String mDatabasePath;
 
@@ -178,7 +179,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             int version = db.getVersion();
 
             // do force upgrade
-            if (version != 0 && version < mForcedUpgradeVersion) {
+            if (!databaseNewlyCreated && version < mForcedUpgradeVersion) {
                 db = createOrOpenDatabase(true);
                 db.setVersion(mNewVersion);
                 version = db.getVersion();
@@ -187,7 +188,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             if (version != mNewVersion) {
                 db.beginTransaction();
                 try {
-                    if (version == 0) {
+                    if (databaseNewlyCreated) {
                         onCreate(db);
                     } else {
                         if (version > mNewVersion) {
@@ -392,12 +393,14 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             if (force) {
                 Log.w(TAG, "forcing database upgrade!");
                 copyDatabaseFromAssets();
+                databaseNewlyCreated = true;
                 db = returnDatabase();
             }
             return db;
         } else {
             // database does not exist, copy it from assets and return it
             copyDatabaseFromAssets();
+            databaseNewlyCreated = true;
             db = returnDatabase();
             return db;
         }
