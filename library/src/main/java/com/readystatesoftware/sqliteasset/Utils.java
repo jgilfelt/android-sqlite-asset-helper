@@ -20,9 +20,19 @@ class Utils {
         StringBuilder sb = new StringBuilder();
         boolean inLiteral = false;
         char[] content = script.toCharArray();
+        int openDelimiter = -1, lastCharacter = -1;
         for (int i = 0; i < script.length(); i++) {
-            if (content[i] == '"') {
-                inLiteral = !inLiteral;
+            if (content[i] == '"' || content[i] == '\'') {
+                if (openDelimiter == -1) {
+                    // We were not inside a literal; store the delimiter's value.
+                    openDelimiter = content[i];
+                    inLiteral = true;
+                } else if (openDelimiter == content[i] && lastCharacter != '\\') {
+                    // We exit from the literal only on the same character
+                    // AND unless we're being escaped by a bachslash.
+                    inLiteral = false;
+                    openDelimiter = -1;
+                }
             }
             if (content[i] == delim && !inLiteral) {
                 if (sb.length() > 0) {
@@ -31,6 +41,12 @@ class Utils {
                 }
             } else {
                 sb.append(content[i]);
+            }
+            if (lastCharacter == '\\' && content[i] == '\\') {
+                // It was an escaped backslash, don't accumulate.
+                lastCharacter = -1;
+            } else {
+                lastCharacter = content[i];
             }
         }
         if (sb.length() > 0) {
