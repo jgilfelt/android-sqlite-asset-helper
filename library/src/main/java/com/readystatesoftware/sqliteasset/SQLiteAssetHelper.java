@@ -179,6 +179,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
             // do force upgrade
             if (version != 0 && version < mForcedUpgradeVersion) {
+                db.close();
                 db = createOrOpenDatabase(true);
                 db.setVersion(mNewVersion);
                 version = db.getVersion();
@@ -288,6 +289,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             mDatabase.close();
             mDatabase = null;
         }
+        super.close();
     }
 
     @Override
@@ -391,6 +393,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             // database already exists
             if (force) {
                 Log.w(TAG, "forcing database upgrade!");
+                db.close();
                 copyDatabaseFromAssets();
                 db = returnDatabase();
             }
