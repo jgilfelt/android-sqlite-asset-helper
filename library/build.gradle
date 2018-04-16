@@ -1,17 +1,23 @@
-apply plugin: 'android-library'
+import com.android.builder.core.BuilderConstants
 
+apply plugin: 'com.android.library'
 android {
-    buildToolsVersion '19.0.0'
-    compileSdkVersion 19
+    buildToolsVersion '27.0.3'
+    compileSdkVersion 26
 
     defaultConfig {
         minSdkVersion 7
     }
-}
 
+    defaultPublishConfig "release"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
 android.libraryVariants.all { variant ->
     def name = variant.buildType.name
-    if (name.equals(com.android.builder.BuilderConstants.DEBUG)) {
+    if (name == BuilderConstants.DEBUG) {
         return; // Skip debug builds.
     }
     def task = project.tasks.create "jar${name.capitalize()}", Jar
@@ -19,5 +25,6 @@ android.libraryVariants.all { variant ->
     task.from variant.javaCompile.destinationDir
     artifacts.add('archives', task);
 }
-
 apply from: 'https://raw.github.com/chrisbanes/gradle-mvn-push/master/gradle-mvn-push.gradle'
+dependencies {
+}
