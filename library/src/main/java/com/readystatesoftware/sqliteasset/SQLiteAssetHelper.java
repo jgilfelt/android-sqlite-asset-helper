@@ -179,6 +179,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
             // do force upgrade
             if (version != 0 && version < mForcedUpgradeVersion) {
+                db.disableWriteAheadLogging();
                 db.close();
                 db = createOrOpenDatabase(true);
                 db.setVersion(mNewVersion);
