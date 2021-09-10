@@ -7,7 +7,7 @@ android {
     compileSdkVersion 26
 
     defaultConfig {
-        minSdkVersion 7
+        minSdkVersion 16
     }
 
     defaultPublishConfig "release"
