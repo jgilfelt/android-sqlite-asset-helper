@@ -264,6 +264,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             mIsInitializing = true;
             String path = mContext.getDatabasePath(mName).getPath();
             db = SQLiteDatabase.openDatabase(path, mFactory, SQLiteDatabase.OPEN_READONLY);
+            db.disableWriteAheadLogging();
             if (db.getVersion() != mNewVersion) {
                 throw new SQLiteException("Can't upgrade read-only database from version " +
                         db.getVersion() + " to " + mNewVersion + ": " + path);
@@ -411,6 +412,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         try {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(mDatabasePath + "/" + mName, mFactory, SQLiteDatabase.OPEN_READWRITE);
             Log.i(TAG, "successfully opened database " + mName);
+            db.disableWriteAheadLogging();
             return db;
         } catch (SQLiteException e) {
             Log.w(TAG, "could not open database " + mName + " - " + e.getMessage());
