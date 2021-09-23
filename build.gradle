@@ -1,10 +1,12 @@
 buildscript {
     repositories {
-        mavenCentral()
+        jcenter()
+        google()
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:0.7.+"
+        classpath 'com.android.tools.build:gradle:3.1.1'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
     }
 }
 
@@ -13,6 +15,7 @@ allprojects {
     group = GROUP
 
     repositories {
-        mavenCentral()
+        google()
+        jcenter()
     }
 }

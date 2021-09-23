@@ -179,6 +179,8 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
 
             // do force upgrade
             if (version != 0 && version < mForcedUpgradeVersion) {
+                db.disableWriteAheadLogging();
+                db.close();
                 db = createOrOpenDatabase(true);
                 db.setVersion(mNewVersion);
                 version = db.getVersion();
@@ -262,6 +264,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             mIsInitializing = true;
             String path = mContext.getDatabasePath(mName).getPath();
             db = SQLiteDatabase.openDatabase(path, mFactory, SQLiteDatabase.OPEN_READONLY);
+            db.disableWriteAheadLogging();
             if (db.getVersion() != mNewVersion) {
                 throw new SQLiteException("Can't upgrade read-only database from version " +
                         db.getVersion() + " to " + mNewVersion + ": " + path);
@@ -288,6 +291,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             mDatabase.close();
             mDatabase = null;
         }
+        super.close();
     }
 
     @Override
@@ -391,6 +395,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
             // database already exists
             if (force) {
                 Log.w(TAG, "forcing database upgrade!");
+                db.close();
                 copyDatabaseFromAssets();
                 db = returnDatabase();
             }
@@ -407,6 +412,7 @@ public class SQLiteAssetHelper extends SQLiteOpenHelper {
         try {
             SQLiteDatabase db = SQLiteDatabase.openDatabase(mDatabasePath + "/" + mName, mFactory, SQLiteDatabase.OPEN_READWRITE);
             Log.i(TAG, "successfully opened database " + mName);
+            db.disableWriteAheadLogging();
             return db;
         } catch (SQLiteException e) {
             Log.w(TAG, "could not open database " + mName + " - " + e.getMessage());
